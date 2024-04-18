@@ -1,0 +1,108 @@
+# import pyrealsense2 as rs
+import numpy as np
+import cv2
+import os
+
+def create_dir(filename):
+    dirname = os.path.dirname(filename)
+    if (not dirname == '') and not os.path.exists(dirname):
+        os.makedirs(dirname)
+
+def record(img_name, vid_name, rate=15, size=(1920, 1080)):
+    # context = rs.context()
+    # pipelines = list()
+    # configs = list()
+    # serials = list()
+    # for device in context.query_devices():
+    #     serial = device.get_info(rs.camera_info.serial_number)
+    #     pipeline = rs.pipeline()
+    #     config = rs.config()
+    #     config.enable_stream(
+    #         rs.stream.color, size[0], size[1], rs.format.bgr8, rate)
+    #     config.enable_device(serial)
+    #     configs.append(config)
+    #     pipelines.append(pipeline)
+    #     serials.append(serial)
+
+    # for config, pipeline in zip(configs, pipelines):
+    #     pipeline.start(config)
+    
+    
+    cap = cv2.VideoCapture(0)
+    serial = 123456
+    
+    try:
+        k = 0
+        img_num = 0
+        vid_num = 0
+        save_image = False
+        save_video = False
+        cv2.namedWindow('RealSense', cv2.WINDOW_KEEPRATIO)
+        while k != 27:  # not escape
+            images = list()
+            k = cv2.waitKey(1)
+            if (k == 32): # space
+                save_image = True
+            if (k == 86 or k == 118): # v | V
+                if not save_video:
+                    # video_writers = list()
+                    # for serial in serials:
+                    #     name = vid_name.format(serial=serial, num=vid_num)
+                    #     create_dir(name)
+                    #     writer = cv2.VideoWriter(
+                    #         name, cv2.VideoWriter_fourcc(*'mp4v'), rate, size)
+                    #     video_writers.append(writer)
+                    
+                    name = vid_name.format(serial=serial, num=vid_num)
+                    create_dir(name)
+                    video_writter = cv2.VideoWriter(name, cv2.VideoWriter_fourcc(*'mp4v'), rate, size)
+                    save_video = True
+                else:
+                    #for writer in video_writers:
+                    video_writter.release()
+                    save_video = False
+                    vid_num = vid_num + 1
+
+            # for pipeline in pipelines:
+            #     frames = pipeline.wait_for_frames()
+            #     color_frame = frames.get_color_frame()
+            #     if not color_frame:
+            #         continue
+            #     images.append(np.asanyarray(color_frame.get_data()))
+            isOk, frame = cap.read()
+            images.append(frame)
+            if save_image:
+                # for img, serial in zip(images, serials):
+                name = img_name.format(serial=serial, num=img_num)
+                create_dir(name)
+                cv2.imwrite(name, images[-1])
+                save_image = False
+                img_num = img_num + 1
+
+            if save_video:
+                # for img, writer in zip(images, video_writers):
+                video_writter.write(images[-1])
+            # Show images
+            color_image = np.hstack(images)
+            if save_video:
+                cv2.circle(color_image, (100, 100), 50, (0, 0, 255), -1)
+            cv2.imshow('RealSense', color_image)
+    finally:
+        pass
+
+    cv2.destroyAllWindows()
+    cap.release()
+    # for pipeline in pipelines:
+    #     pipeline.stop()
+
+
+if __name__ == "__main__":    
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    path = dir_path + "/output/position"
+    
+    vid_name = "{serial}/vid_{num:05d}.mp4"
+    img_name = "{serial}/img_{num:05d}.png"
+
+    vid_name = os.path.join(path + "/video", vid_name)
+    img_name = os.path.join(path + "/images", img_name)
+    record(img_name, vid_name)
