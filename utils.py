@@ -2,6 +2,13 @@ import os
 import cv2
 import numpy as np
 
+# Configure depth and color streams
+def create_dir(filename):
+    dirname = os.path.dirname(filename)
+    if (not dirname == '') and not os.path.exists(dirname):
+        os.makedirs(dirname)
+
+
 
 def ucitaj_fajlove(folder, sort=True, ekstenzije=None):
     all_files = list()
