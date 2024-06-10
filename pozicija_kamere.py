@@ -60,7 +60,7 @@ def odredi_pozicije(images_path, calib_file,  file_name, widht, height, cell_siz
 
 if __name__ == "__main__":
     
-    ids = ['950122061749', '950122061707']
+    ids = ['950122061749', '950122060411']
     
     for id in ids:
         images_path = f"./output/position/images/{id}"
