@@ -39,6 +39,10 @@ LINIJE = [
    
 ]
 
+def create_dir(filename):
+    dirname = os.path.dirname(filename)
+    if (not dirname == '') and not os.path.exists(dirname):
+        os.makedirs(dirname)
 
 def iscrtaj_markere(img, markeri, threshold=None, radius=5, thickness=3, color=(255, 0, 0)):
     p = markeri.shape[0]
