@@ -34,6 +34,8 @@ def calibrate(images_path, file_name, width, height, cell_size):
     cv2.destroyAllWindows()
     ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(object_points, image_points, gray.shape[::-1], None, None)
     mean_error = 0
+    print("Duzina objekata")
+    print(len(object_points))
     for i in range(len(object_points)):
         imgpoints2, _ = cv2.projectPoints(
             single_object_points, rvecs[i], tvecs[i], mtx, dist)
@@ -50,10 +52,10 @@ def calibrate(images_path, file_name, width, height, cell_size):
 
 
 if __name__ == "__main__":
-    ids = ['950122061749', '950122060411' ]
-    
+    ids = ['950122060411', '950122061707', '950122061749']
+    #ids = ['950122061707']
     for id in ids:
-        images_path = f"./output/calib/images/{id}"
+        images_path = f"./data/calib/images/{id}"
         w, h = 8, 5
         cell_size = 30
         

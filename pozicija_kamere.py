@@ -33,23 +33,28 @@ def odredi_pozicije(images_path, calib_file,  file_name, widht, height, cell_siz
         undistorted = cv2.undistort(img, cam_mat, dist_coeffs, None, cam_mat)
         gray = cv2.cvtColor(undistorted, cv2.COLOR_BGR2GRAY)
         ret, corners = cv2.findChessboardCorners(gray, (widht, height), None)
-        if ret == True:
+        if ret:
             corners2 = cv2.cornerSubPix(gray, corners, (5, 5), (-1, -1), criteria)
             ret, rvec, tvec, _ = cv2.solvePnPRansac(object_points, corners2, cam_mat, None)
             if ret:
                 all_rvec = np.hstack((all_rvec, rvec))
                 all_tvec = np.hstack((all_tvec, tvec))
+    
     rvec = np.mean(all_rvec, axis=1).reshape(3, 1)
     tvec = np.mean(all_tvec, axis=1).reshape(3, 1)
     cv2.namedWindow('Undistorted', cv2.WINDOW_KEEPRATIO)
     rot_mat, _ = cv2.Rodrigues(rvec)
 
-    for image in all_files:
+
+
+    for i, image in enumerate(all_files):
         img = cv2.imread(image)
         undistorted = cv2.undistort(img, cam_mat, dist_coeffs, None, cam_mat)
-        undistorted = draw_axis(undistorted, rot_mat,tvec, cam_mat, 5*cell_size)
+        rot_mat, _ = cv2.Rodrigues(all_rvec[:, i])
+        undistorted = draw_axis(undistorted, rot_mat,all_tvec[:, i].reshape(3,1), cam_mat, 5*cell_size)
+        undistorted = cv2.drawChessboardCorners(undistorted, (widht, height), corners2, ret)
         cv2.imshow('Undistorted', undistorted)
-        cv2.waitKey(10)
+        cv2.waitKey(0)
     file = cv2.FileStorage(file_name, cv2.FILE_STORAGE_WRITE)
     file.write("distortion", dist_coeffs)
     file.write("intrinsic", cam_mat)
@@ -60,10 +65,10 @@ def odredi_pozicije(images_path, calib_file,  file_name, widht, height, cell_siz
 
 if __name__ == "__main__":
     
-    ids = ['950122061749', '950122060411']
-    
+    ids = ['950122060411', '950122061707', '950122061749']
+    #ids = ['950122061707']
     for id in ids:
-        images_path = f"./output/position/images/{id}"
+        images_path = f"./data/grupa3/position/images/{id}"
         w, h = 8, 5
         cell_size = 45
         
